@@ -13,11 +13,6 @@ try:
 except ImportError:
     CONF = None
 
-def pytest_addoption(parser):
-    parser.addoption('--cinder-arg',
-                     action='append',
-                     default=[])
-
 def pytest_generate_tests(metafunc):
     if CONF is None:
         metafunc.parametrize('cinder_conf', None)

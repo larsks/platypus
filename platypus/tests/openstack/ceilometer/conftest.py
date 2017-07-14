@@ -7,11 +7,6 @@ try:
 except ImportError:
     ceilometer = None
 
-def pytest_addoption(parser):
-    parser.addoption('--ceilometer-arg',
-                     action='append',
-                     default=[])
-
 @pytest.fixture
 def ceilometer_args(request):
     return request.config.getoption('--ceilometer-arg')

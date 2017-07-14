@@ -7,13 +7,6 @@ try:
 except ImportError:
     CONF = None
 
-def pytest_addoption(parser):
-    parser.addoption('--keystone-token-limit',
-                     default=10000)
-    parser.addoption('--keystone-arg',
-                     action='append',
-                     default=[])
-
 @pytest.fixture
 def keystone_args(request):
     return request.config.getoption('--keystone-arg')
