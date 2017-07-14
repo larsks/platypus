@@ -1,18 +1,29 @@
 import pytest
 import subprocess
 
-configfiles = [cfgfile for cfgfile in 
-               subprocess.check_output([
-                   'rpm', '-qa', '--configfiles', 'openstack*']).splitlines()
-               if cfgfile.startswith('/etc') and cfgfile.endswith('.conf')]
+try:
+    from oslo_config import cfg
 
+    debug_opt = cfg.BoolOpt('debug', default=False)
+    configfiles = [cfgfile for cfgfile in
+                   subprocess.check_output([
+                       'rpm', '-qa', '--configfiles', 'openstack*']).splitlines()
+                   if cfgfile.startswith('/etc') and cfgfile.endswith('.conf')]
+except ImportError:
+    cfg = None
+    configfiles = []
+
+@pytest.mark.skipif(cfg is None,
+                    reason='debug_logs: oslo_config is not available')
 @pytest.mark.parametrize('path', configfiles)
 def test_debug_logging(path):
-    with open(path) as fd:
-        for ln, line in enumerate(fd):
-            if line.startswith('debug'):
-                k, _, v = line.strip().partition('=')
-                if k.strip() == 'debug':
-                    assert v.lower().strip() != 'true', (
-                        'debug_logs: debug logging enabled '
-                        'in %s, line %d' % (path, ln+1))
+    CONF = cfg.ConfigOpts()
+    CONF.register_opt(debug_opt)
+
+    try:
+        CONF(args=['--config-file', path])
+    except cfg.ConfigFileParseError:
+        pytest.skip('debug_logs: cannot parse %s' % path)
+
+    assert CONF.debug is False, (
+        'debug_logs: debug logging is enabled in %s' % path)
