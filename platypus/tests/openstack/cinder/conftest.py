@@ -15,7 +15,6 @@ except ImportError:
 
 def pytest_generate_tests(metafunc):
     if CONF is None:
-        metafunc.parametrize('cinder_conf', None)
         return
 
     CONF(project='cinder',
@@ -29,4 +28,13 @@ def pytest_generate_tests(metafunc):
             CONF.register_opts(volume_backend_opts, group=backend)
 
         metafunc.parametrize('cinder_backend', enabled_backends)
+
+
+@pytest.fixture
+def cinder_conf():
+    pass
+
+@pytest.fixture
+def cinder_backend():
+    pass
 
