@@ -1,0 +1,19 @@
+- name: get a list of candidate filesystems
+  command: cat /proc/mounts
+  register: mounts
+
+- set_fact:
+    mountlines: >
+      {{ mounts.stdout_lines|select('search', '(xfs|ext[234]|btrfs)')|list }}
+
+- name: get available disk space
+  command: >
+    df --output=target,pcent {{ item.split()[1] }}
+  register: df_output
+  with_items: "{{ mountlines }}"
+
+- name: check available disk space
+  assert:
+    that: item.stdout_lines[1].split()[-1][:-1]|int < 80
+    msg: "filesystem utilize is > 80 on {{ item.stdout_lines[1].split()[0] }}"
+  with_items: "{{ df_output.results }}"

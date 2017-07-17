@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import AnsibleModule
+import errno
+import subprocess
+
+def get_clock_info():
+    try:
+        out = subprocess.check_output(['chronyc', 'tracking'])
+    except subprocess.CalledProcessError:
+        return False, 0
+
+    data = {x[0].strip(): x[2].strip()
+           for x in [line.partition(':')
+                     for line in out.splitlines()]}
+
+    return True, float(data['RMS offset'].split()[0])
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(),
+        supports_check_mode=True,
+    )
+
+    clock = {
+        'synchronized': False,
+        'offset': 0,
+    }
+
+    try:
+        clock['synchronized'], clock['offset'] = get_clock_info()
+    except OSError as err:
+        if err.errno == errno.ENOENT:
+            module.fail_json(msg='chronyc is not available')
+        else:
+            module.fail_json(msg='unexpected failure calling chronyc: %s' % err)
+
+    module.exit_json(changed=False,
+                     clock=clock)
+
+if __name__ == '__main__':
+    main()

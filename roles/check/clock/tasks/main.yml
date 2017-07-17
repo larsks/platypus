@@ -1,0 +1,37 @@
+---
+- name: check if ntpd is active
+  command: systemctl is-enabled ntpd
+  ignore_errors: true
+  register: ntpd_active
+  changed_when: false
+
+- name: check if chronyd is active
+  command: systemctl is-enabled chronyd
+  ignore_errors: true
+  register: chronyd_active
+  changed_when: false
+
+- name: check if both ntp services are active
+  assert:
+    that: not (chronyd_active|success and ntpd_active|success)
+    msg: both chronyd and ntpd appear to be active.
+
+- name: get clock skew from ntpd
+  ntpd_clock_skew:
+  register: clock_skew
+  when: ntpd_active|success
+
+- name: get clock skew from chronyd
+  chronyd_clock_skew:
+  register: clock_skew
+  when: chronyd_active|success
+
+- name: check if clock is synchronized
+  assert:
+    that: clock_skew.clock.synchronized
+    msg: clock is not synchronized
+
+- name: check ntp offset
+  assert:
+    that: clock_skew.clock.offset < clock_skew_limit|default(1)
+    msg: clock offset is too large
