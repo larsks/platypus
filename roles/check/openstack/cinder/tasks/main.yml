@@ -1,0 +1,23 @@
+- name: get list of enabled backends
+  os_config:
+    project: cinder
+    options:
+      - name: enabled_backends
+        type: list
+  register: cinder_backends
+
+- name: get volume_driver for each backend
+  os_config:
+    project: cinder
+    options:
+      - group: "{{ item }}"
+        name: volume_driver
+  register: volume_drivers
+  with_items: "{{ cinder_backends.config.enabled_backends }}"
+  when: cinder_backends.config.enabled_backends
+
+- assert:
+    that: not item.config[item.item].volume_driver.endswith('LVMVolumeDriver')
+    msg: "LVM volume driver is enabled for backend {{ item.item }}"
+  with_items: "{{ volume_drivers.results }}"
+  when: cinder_backends.config.enabled_backends

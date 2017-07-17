@@ -8,3 +8,5 @@
       tags: check-diskspace
     - role: check/openstack/logging
       tags: check-openstack-logging
+    - role: check/openstack/cinder
+      tags: check-openstack-cinder
