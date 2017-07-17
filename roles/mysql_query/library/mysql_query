@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import AnsibleModule
+import sqlalchemy
+
+def get_clock_info():
+    try:
+        out = subprocess.check_output(['ntpq', '-c', 'peers'])
+    except subprocess.CalledProcessError:
+        return None
+
+    for line in out.splitlines():
+        if line.startswith('*'):
+            break
+    else:
+        return False, 0
+
+    data = line.split()
+    offset = data[7]
+    return True, float(offset)/1000
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+		connection=dict(required=True),
+		query=dict(required=True),
+	),
+        supports_check_mode=True,
+    )
+
+
+    engine = sqlalchemy.create_engine(module.params['connection'])
+    res = engine.execute(module.params['query'])
+
+    module.exit_json(changed=False,
+                     results=res.fetchall())
+
+if __name__ == '__main__':
+    main()

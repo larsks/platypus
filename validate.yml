@@ -10,3 +10,5 @@
       tags: check-openstack-logging
     - role: check/openstack/cinder
       tags: check-openstack-cinder
+    - role: check/openstack/keystone
+      tags: check-openstack-keystone
