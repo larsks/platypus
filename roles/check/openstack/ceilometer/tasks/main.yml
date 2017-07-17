@@ -1,0 +1,15 @@
+- name: get metering_time_to_live setting
+  os_config:
+    project: ceilometer
+    options:
+      - group: database
+        name: metering_time_to_live
+        deprecated_group: database
+        deprecated_name: time_to_live
+        default: 0
+  register: ttl
+
+- name: check metering_time_to_live setting
+  assert:
+    that: ttl.config.database.metering_time_to_live|int > 0
+    msg: "metric expiration is not configured"

@@ -12,3 +12,5 @@
       tags: check-openstack-cinder
     - role: check/openstack/keystone
       tags: check-openstack-keystone
+    - role: check/openstack/ceilometer
+      tags: check-openstack-ceilometer
