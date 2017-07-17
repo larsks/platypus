@@ -1,12 +1,10 @@
 - hosts: localhost
   roles:
-    - os_config
-
-- hosts: localhost
-  roles:
     - role: check/updates
       tags: check-updates
     - role: check/clock
       tags: check-clock
     - role: check/diskspace
       tags: check-diskspace
+    - role: check/openstack/logging
+      tags: check-openstack-logging
