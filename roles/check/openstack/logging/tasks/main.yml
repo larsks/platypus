@@ -1,7 +1,7 @@
 - name: get a list of openstack configuration files
   shell: rpm -qa -c 'openstack*' | grep '/etc.*\.conf'
-  failed_when: false
   changed_when: false
+  ignore_errors: true
   register: config_files
 
 - when: config_files|success

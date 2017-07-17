@@ -7,12 +7,15 @@
         deprecated_group: database
         deprecated_name: time_to_live
         default: 0
-  register: ttl
+  register: ceilometer_ttl
+  ignore_errors: true
 
-- name: check metering_time_to_live setting
-  assert:
-    that: ttl.config.database.metering_time_to_live|int > 0
-    msg: "metric expiration is not configured"
+- when: ceilometer_ttl|success
+  block:
+    - name: check metering_time_to_live setting
+      assert:
+        that: ceilometer_ttl.config.database.metering_time_to_live|int > 0
+        msg: "metric expiration is not configured"
 
 - name: get metering_connection setting
   os_config:
@@ -22,15 +25,18 @@
         name: metering_connection
         deprecated_group: database
         deprecated_name: connection
-  register: connection
+  register: ceilometer_connection
+  ignore_errors: true
 
-- name: get metering database size
-  mongo_query:
-    connection: "{{ connection.config.database.metering_connection }}"
-    query: "db.stats()"
-  register: mongo_db_size
+- when: ceilometer_connection|success
+  block:
+    - name: get metering database size
+      mongo_query:
+        connection: "{{ ceilometer_connection.config.database.metering_connection }}"
+        query: "db.stats()"
+      register: mongo_db_size
 
-- name: check metering database size
-  assert:
-    that: mongo_db_size.results.storageSize < 100000
-    msg: "metering database is large; have you set a ttl?"
+    - name: check metering database size
+      assert:
+        that: mongo_db_size.results.storageSize < 100000
+        msg: "metering database is large; have you set a ceilometer_ttl?"
