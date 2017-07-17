@@ -3,22 +3,6 @@
 from ansible.module_utils.basic import AnsibleModule
 import sqlalchemy
 
-def get_clock_info():
-    try:
-        out = subprocess.check_output(['ntpq', '-c', 'peers'])
-    except subprocess.CalledProcessError:
-        return None
-
-    for line in out.splitlines():
-        if line.startswith('*'):
-            break
-    else:
-        return False, 0
-
-    data = line.split()
-    offset = data[7]
-    return True, float(offset)/1000
-
 def main():
     module = AnsibleModule(
         argument_spec=dict(

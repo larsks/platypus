@@ -1,0 +1,28 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import AnsibleModule
+import pymongo
+import urlparse
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+		connection=dict(required=True),
+		query=dict(required=True),
+	),
+        supports_check_mode=True,
+    )
+
+    if not module.params['connection'].startswith('mongodb:'):
+        module.fail_json(msg="connection is not a mongodb uri")
+
+    uri = urlparse.urlparse(module.params['connection'])
+    client = pymongo.MongoClient(module.params['connection'])
+    db = client[uri.path[1:]]
+    res = db.eval(module.params['query'])
+
+    module.exit_json(changed=False,
+                     results=res)
+
+if __name__ == '__main__':
+    main()
