@@ -3,21 +3,20 @@
 from ansible.module_utils.basic import AnsibleModule
 import sqlalchemy
 
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-		connection=dict(required=True),
-		query=dict(required=True),
-	),
+            connection=dict(required=True),
+            query=dict(required=True), ),
         supports_check_mode=True,
     )
-
 
     engine = sqlalchemy.create_engine(module.params['connection'])
     res = engine.execute(module.params['query'])
 
-    module.exit_json(changed=False,
-                     results=res.fetchall())
+    module.exit_json(changed=False, results=res.fetchall())
+
 
 if __name__ == '__main__':
     main()
