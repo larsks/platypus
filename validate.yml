@@ -6,23 +6,13 @@
       tags: check-clock
     - role: check/diskspace
       tags: check-diskspace
-
-- hosts: openstack
-  roles:
+    - role: check/pacemaker/fencing
+      tags: check-pacemaker-fencing
     - role: check/openstack/logging
       tags: check-openstack-logging
-
-- hosts: cinder
-  roles:
     - role: check/openstack/cinder
       tags: check-openstack-cinder
-
-- hosts: keystone
-  roles:
     - role: check/openstack/keystone
       tags: check-openstack-keystone
-
-- hosts: ceilometer
-  roles:
     - role: check/openstack/ceilometer
       tags: check-openstack-ceilometer

@@ -1,0 +1,29 @@
+- name: get cluster properties
+  pcs_cluster_properties:
+  register: cluster_properties
+  ignore_errors: true
+
+- when: cluster_properties|success
+  block:
+    - name: check that fencing is enabled
+      assert:
+        that: >
+          cluster_properties.properties['stonith-enabled']|default('false')
+          is not 'false'
+        msg: 'fencing is explicitly disabled'
+
+    - name: get list of fencing devices
+      command: pcs stonith show
+      register: fence_devices
+
+    - name: check that fence devices exist
+      assert:
+        that: "item != 'No stonith devices configured'"
+        msg: "no fencing devices have been configured"
+      with_items: "{{ fence_devices.stdout_lines }}"
+
+    - name: check that fence devices are active
+      assert:
+        that: "'Stopped' not in item"
+        msg: "fence device {{ item.split()[0] }} is stopped"
+      with_items: "{{ fence_devices.stdout_lines }}"
