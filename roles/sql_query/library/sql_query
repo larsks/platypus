@@ -15,7 +15,11 @@ def main():
     )
 
     engine = sqlalchemy.create_engine(module.params['connection'])
-    res = engine.execute(module.params['query'])
+
+    try:
+        res = engine.execute(module.params['query'])
+    except sqlalchemy.exc.SQLAlchemyError as err:
+        module.fail_json(msg="query resulted in an error: %s" % err)
 
     if module.params.get('rows_are_lists', False):
         data = lambda: res.fetchall()
