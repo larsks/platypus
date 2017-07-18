@@ -1,4 +1,4 @@
 ---
 dependencies:
   - os_config
-  - mysql_query
+  - sql_query

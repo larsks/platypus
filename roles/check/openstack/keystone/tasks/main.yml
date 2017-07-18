@@ -12,7 +12,7 @@
 - when: keystone_db|success
   block:
     - name: get token table size
-      mysql_query:
+      sql_query:
         connection: "{{ keystone_db.config.database.connection }}"
         query: select count(id) from token
       register: token_table_size
