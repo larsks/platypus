@@ -8,14 +8,22 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             connection=dict(required=True),
-            query=dict(required=True), ),
+            query=dict(required=True),
+            rows_are_lists=dict(type='bool', default=False)
+        ),
         supports_check_mode=True,
     )
 
     engine = sqlalchemy.create_engine(module.params['connection'])
     res = engine.execute(module.params['query'])
 
-    module.exit_json(changed=False, results=res.fetchall())
+    if module.params.get('rows_are_lists', False):
+        data = lambda: res.fetchall()
+    else:
+        data = lambda: [dict(row) for row in res.fetchall()]
+
+    module.exit_json(changed=False,
+                     results=data())
 
 
 if __name__ == '__main__':

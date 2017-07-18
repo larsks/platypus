@@ -27,6 +27,7 @@
     - sql_query:
         connection: sqlite:///test.db
         query: select count(id) from widgets
+        rows_are_lists: true
       register: result
 
     - debug:
@@ -51,4 +52,4 @@
         var: result
 
     - assert:
-        that: result.results[0][0] == 2
+        that: result.results[0].id == 2
