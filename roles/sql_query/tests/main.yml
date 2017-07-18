@@ -1,0 +1,54 @@
+- name: setup
+  hosts: localhost
+  tasks:
+    - name: remove old test database
+      file:
+        path: test.db
+        state: absent
+
+    - name: create test database
+      shell: >
+        sqlite3 test.db < test.schema
+      args:
+        creates: test.db
+      register: create_db
+
+    - name: populate test database
+      shell: >
+        sqlite3 test.db < test.data
+      when: create_db|changed
+
+- name: test-001
+  tags: test-001
+  hosts: localhost
+  roles:
+    - ../../sql_query
+  tasks:
+    - sql_query:
+        connection: sqlite:///test.db
+        query: select count(id) from widgets
+      register: result
+
+    - debug:
+        var: result
+
+    - assert:
+        that: result.results[0][0] == 3
+
+- name: test-002
+  tags: test-002
+  hosts: localhost
+  roles:
+    - ../../sql_query
+  tasks:
+    - sql_query:
+        connection: sqlite:///test.db
+        query: >
+          select id from widgets where description = "a gizmo"
+      register: result
+
+    - debug:
+        var: result
+
+    - assert:
+        that: result.results[0][0] == 2
