@@ -15,6 +15,7 @@
       sql_query:
         connection: "{{ keystone_db.config.database.connection }}"
         query: select count(id) from token
+        rows_are_lists: true
       register: token_table_size
 
     - assert:
