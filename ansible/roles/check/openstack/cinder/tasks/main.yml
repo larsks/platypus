@@ -16,12 +16,12 @@
           - group: "{{ item }}"
             name: volume_driver
       register: volume_drivers
+      when: item != ""
       with_items: "{{ cinder_backends.config.enabled_backends }}"
-      when: cinder_backends.config.enabled_backends
 
     - assert:
         that: not item.config[item.item].volume_driver.endswith('LVMVolumeDriver')
         msg: "LVM volume driver is enabled for backend {{ item.item }}"
+      when: not item|skipped
       with_items: "{{ volume_drivers.results }}"
-      when: cinder_backends.config.enabled_backends
       ignore_errors: "{{ continue_on_error|default(false)|bool }}"
