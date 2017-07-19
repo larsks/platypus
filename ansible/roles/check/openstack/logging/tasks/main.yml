@@ -20,3 +20,4 @@
         msg: "debug logging is enabled in {{ item.config.config_file[0] }}"
       when: item|success
       with_items: "{{ debug_logging.results }}"
+      ignore_errors: "{{ continue_on_error|default(false)|bool }}"

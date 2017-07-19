@@ -11,6 +11,7 @@
           cluster_properties.properties['stonith-enabled']|default('false')
           is not 'false'
         msg: 'fencing is explicitly disabled'
+        ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
     - name: get list of fencing devices
       command: pcs stonith show
@@ -21,9 +22,11 @@
         that: "item != 'No stonith devices configured'"
         msg: "no fencing devices have been configured"
       with_items: "{{ fence_devices.stdout_lines }}"
+      ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
     - name: check that fence devices are active
       assert:
         that: "'Stopped' not in item"
         msg: "fence device {{ item.split()[0] }} is stopped"
       with_items: "{{ fence_devices.stdout_lines }}"
+      ignore_errors: "{{ continue_on_error|default(false)|bool }}"

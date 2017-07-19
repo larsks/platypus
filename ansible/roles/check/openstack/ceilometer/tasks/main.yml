@@ -16,6 +16,7 @@
       assert:
         that: ceilometer_ttl.config.database.metering_time_to_live|int > 0
         msg: "metric expiration is not configured"
+      ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
 - name: get metering_connection setting
   os_config:
@@ -40,3 +41,4 @@
       assert:
         that: mongo_db_size.results.storageSize < 100000
         msg: "metering database is large; have you set a ceilometer_ttl?"
+      ignore_errors: "{{ continue_on_error|default(false)|bool }}"

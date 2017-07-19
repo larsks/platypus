@@ -15,6 +15,7 @@
   assert:
     that: not (chronyd_active|success and ntpd_active|success)
     msg: both chronyd and ntpd appear to be active.
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
 - name: get clock skew from ntpd
   ntpd_clock_skew:
@@ -30,8 +31,10 @@
   assert:
     that: clock_skew.clock.synchronized
     msg: clock is not synchronized
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
 - name: check ntp offset
   assert:
     that: clock_skew.clock.offset < clock_skew_limit|default(1)
     msg: clock offset is too large
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"

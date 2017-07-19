@@ -17,3 +17,4 @@
     that: item.stdout_lines[1].split()[-1][:-1]|int < 80
     msg: "filesystem utilize is > 80 on {{ item.stdout_lines[1].split()[0] }}"
   with_items: "{{ df_output.results }}"
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"

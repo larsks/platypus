@@ -6,6 +6,7 @@
   changed_when: false
   ignore_errors: true
 
-- fail:
+- assert:
+    that: not check_update|failed
     msg: "There are available uninstalled updates."
-  when: check_update|failed
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"
