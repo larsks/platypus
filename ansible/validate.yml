@@ -1,4 +1,6 @@
 - hosts: all
+  tags:
+    - check-basic
   roles:
     - role: check/updates
       tags: check-updates
@@ -6,8 +8,17 @@
       tags: check-clock
     - role: check/diskspace
       tags: check-diskspace
+
+- hosts: all
+  tags:
+    - check-pacemaker
+  roles:
     - role: check/pacemaker/fencing
-      tags: check-pacemaker-fencing
+
+- hosts: all
+  tags:
+    - check-openstack
+  roles:
     - role: check/openstack/logging
       tags: check-openstack-logging
     - role: check/openstack/cinder
