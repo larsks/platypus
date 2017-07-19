@@ -1,4 +1,4 @@
 pytest
 pytest-html
-oslo_config
+oslo.config
 sqlalchemy
