@@ -1,4 +1,4 @@
 ---
 dependencies:
-  - os_config
-  - mongo_query
+  - module/os_config
+  - module/mongo_query
