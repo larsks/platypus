@@ -1,0 +1,6 @@
+[submodule "ansible/roles/os_config"]
+	path = ansible/roles/os_config
+	url = https://github.com/larsks/ansible-os-config
+[submodule "ansible/roles/sql_query"]
+	path = ansible/roles/sql_query
+	url = https://github.com/larsks/ansible-sql-query
