@@ -1,0 +1,4 @@
+---
+dependencies:
+  - os_config
+  - sql_query

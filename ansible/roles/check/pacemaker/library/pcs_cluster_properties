@@ -1,0 +1,34 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import AnsibleModule
+import errno
+import subprocess
+
+def get_cluster_properties():
+    props = {}
+    out = subprocess.check_output(['pcs', 'property', 'list', '--all'])
+    for line in out.splitlines():
+        if line == 'Cluster Properties:':
+            continue
+
+        prop, _, val = line.partition(': ')
+        props[prop.strip()] = val.strip()
+
+    return props
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(),
+        supports_check_mode=True,
+    )
+
+    try:
+        properties = get_cluster_properties()
+    except subprocess.CalledProcessError:
+        module.fail_json(msg="Failed to get cluster properties.")
+
+    module.exit_json(changed=False,
+                     properties=properties)
+
+if __name__ == '__main__':
+    main()

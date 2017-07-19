@@ -1,0 +1,11 @@
+---
+- name: check for available package updates
+  command: dnf check-update
+  register: check_update
+  failed_when: check_update.rc == 100
+  changed_when: false
+  ignore_errors: true
+
+- fail:
+    msg: "There are available uninstalled updates."
+  when: check_update|failed

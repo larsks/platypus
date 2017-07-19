@@ -1,0 +1,22 @@
+- name: get a list of openstack configuration files
+  shell: rpm -qa -c 'openstack*' | grep '/etc.*\.conf'
+  changed_when: false
+  ignore_errors: true
+  register: config_files
+
+- when: config_files|success
+  block:
+    - os_config:
+        options:
+          - name: debug
+            type: bool
+        path: "{{ item }}"
+      register: debug_logging
+      ignore_errors: true
+      with_items: "{{ config_files.stdout_lines }}"
+
+    - assert:
+        that: not item.config.debug
+        msg: "debug logging is enabled in {{ item.config.config_file[0] }}"
+      when: item|success
+      with_items: "{{ debug_logging.results }}"

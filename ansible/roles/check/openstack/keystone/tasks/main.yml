@@ -1,0 +1,22 @@
+- name: get keystone database connection
+  os_config:
+    project: keystone
+    options:
+      - group: database
+        name: connection
+        deprecated_group: DEFAULT
+        deprecated_name: sql_connection
+  register: keystone_db
+  ignore_errors: true
+
+- when: keystone_db|success
+  block:
+    - name: get token table size
+      sql_query:
+        connection: "{{ keystone_db.config.database.connection }}"
+        query: select count(id) from token
+      register: token_table_size
+
+    - assert:
+        that: token_table_size.results[0][0] < 100000
+        msg: "keystone token table is large; are you expiring tokens?"

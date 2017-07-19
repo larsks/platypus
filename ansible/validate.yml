@@ -1,0 +1,18 @@
+- hosts: all
+  roles:
+    - role: check/updates
+      tags: check-updates
+    - role: check/clock
+      tags: check-clock
+    - role: check/diskspace
+      tags: check-diskspace
+    - role: check/pacemaker/fencing
+      tags: check-pacemaker-fencing
+    - role: check/openstack/logging
+      tags: check-openstack-logging
+    - role: check/openstack/cinder
+      tags: check-openstack-cinder
+    - role: check/openstack/keystone
+      tags: check-openstack-keystone
+    - role: check/openstack/ceilometer
+      tags: check-openstack-ceilometer
