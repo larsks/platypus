@@ -27,7 +27,8 @@ def test_ntp_offset():
     else:
         assert False, 'ntp: no ntp service is active on this host.'
 
-    LOG.info('ntp clock offset = %f', offset)
+    if offset is not None:
+        LOG.info('ntp clock offset = %f', offset)
 
     assert offset is not None, 'ntp: clock is not synchronized'
     assert offset < 1, 'ntp: offset is too large (>= 1)'
