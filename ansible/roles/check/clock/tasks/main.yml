@@ -17,24 +17,38 @@
     msg: both chronyd and ntpd appear to be active.
   ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
+- name: check if neither service is active
+  assert:
+    that: (chronyd_active|success or ntpd_active|success)
+    msg: "no ntp service is running"
+  ignore_errors: "{{ continue_on_error|default(false)|bool }}"
+
 - name: get clock skew from ntpd
   ntpd_clock_skew:
-  register: clock_skew
+  register: clock_skew_ntpd
   when: ntpd_active|success
 
 - name: get clock skew from chronyd
   chronyd_clock_skew:
-  register: clock_skew
+  register: clock_skew_chronyd
   when: chronyd_active|success
+
+- name: set clock_skew fact
+  set_fact:
+    clock_skew: >
+      {% if ntpd_active|success %}{{ clock_skew_ntpd}}{% else -%}
+      {{ clock_skew_chronyd }}{% endif %}
 
 - name: check if clock is synchronized
   assert:
-    that: clock_skew.clock.synchronized
+    that: >
+      clock_skew.clock.synchronized|default(false)
     msg: clock is not synchronized
   ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
 - name: check ntp offset
   assert:
-    that: clock_skew.clock.offset < clock_skew_limit|default(1)
+    that: >
+      clock_skew.clock.offset < clock_skew_limit|default(1))
     msg: clock offset is too large
   ignore_errors: "{{ continue_on_error|default(false)|bool }}"
