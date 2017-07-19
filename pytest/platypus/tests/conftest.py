@@ -10,11 +10,8 @@ def pytest_addoption(parser):
                      default=10000,
                      type=int)
     parser.addoption('--keystone-config-file',
-                     action='append',
-                     default=[])
+                     action='append')
     parser.addoption('--cinder-config-file',
-                     action='append',
-                     default=[])
+                     action='append')
     parser.addoption('--ceilometer-config-file',
-                     action='append',
-                     default=[])
+                     action='append')
