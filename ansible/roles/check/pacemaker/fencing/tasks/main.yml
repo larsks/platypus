@@ -2,8 +2,10 @@
   pcs_cluster_properties:
   register: cluster_properties
   ignore_errors: true
+  failed_when: false
+  changed_when: false
 
-- when: cluster_properties|success
+- when: cluster_properties.properties|default(false)
   block:
     - name: check that fencing is enabled
       assert:
