@@ -1,0 +1,14 @@
+- name: prep
+  hosts: localhost
+  roles:
+    - ../../assertive
+
+- name: test-001
+  hosts: localhost
+  strategy: assertive
+  tasks:
+    - assert:
+        that: false
+
+    - assert:
+        that: true
