@@ -1,0 +1,74 @@
+#!/usr/bin/python
+
+import os
+from ansible.module_utils.basic import AnsibleModule
+
+default_fstypes = [
+    'xfs',
+    'ext2',
+    'ext3',
+    'ext4',
+    'btrfs',
+]
+
+def discover_mounts(paths=None, fstypes=None):
+    if fstypes is None:
+        fstypes = default_fstypes
+
+    selected = []
+    with open('/proc/mounts', 'r') as fd:
+        for line in fd:
+            dev, target, fstype = line.split()[:3]
+            if not fstype in fstypes:
+                continue
+
+            if paths is not None and target not in paths:
+                continue
+
+            selected.append(dict(
+                dev=dev,
+                target=target,
+                fstype=fstype))
+
+    return selected
+
+def get_free_space(filesystems):
+    results = {}
+    for fs in filesystems:
+        stat = os.statvfs(fs['target'])
+        tot_size = stat.f_frsize * stat.f_blocks
+        bytes_free = stat.f_bsize * stat.f_bavail
+        bytes_used = tot_size - bytes_free
+        pct_free = ((bytes_free*1.0)/tot_size) * 100
+        pct_used = 100 - pct_free
+
+        results[fs['target']] = {
+            'fstype': fs['fstype'],
+            'device': fs['dev'],
+            'total_bytes': tot_size,
+            'bytes_used': bytes_used,
+            'bytes_free': bytes_free,
+            'pct_free': pct_free,
+            'pct_used': pct_used,
+        }
+
+    return results
+
+def main():
+    module = AnsibleModule(
+        argument_spec=dict(
+            filesystems=dict(type='list'),
+            fstypes=dict(type='list'),
+        ),
+        supports_check_mode=True,
+    )
+
+    results = {}
+    filesystems = discover_mounts(paths=module.params.get('filesystems'),
+                                  fstypes=module.params.get('fstypes'))
+
+    results = get_free_space(filesystems)
+    module.exit_json(changed=False, filesystems=results)
+
+if __name__ == '__main__':
+    main()
