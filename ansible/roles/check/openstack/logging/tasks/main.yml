@@ -16,6 +16,7 @@
       with_items: "{{ config_files.stdout_lines }}"
 
     - assert:
+        nonfatal: true
         that: not item.config.debug
         msg: "debug logging is enabled in {{ item.config.config_file[0] }}"
       when: item|success

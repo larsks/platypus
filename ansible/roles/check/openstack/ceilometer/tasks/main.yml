@@ -23,6 +23,7 @@
 
 - name: check metering_time_to_live setting
   assert:
+    nonfatal: true
     that: ceilometer_ttl.config.database.metering_time_to_live|int > 0
     msg: "metric expiration is not configured"
   when: >
@@ -39,6 +40,7 @@
 
 - name: check metering database size
   assert:
+    nonfatal: true
     that: mongo_db_size.results.storageSize < mongo_db_size_limit|int
     msg: "metering database is large ({{ mongo_db_size.results.storageSize }} bytes); have you set a ceilometer_ttl?"
   when: not mongo_db_size|skipped

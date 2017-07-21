@@ -4,6 +4,7 @@
 
 - name: check available disk space
   assert:
+    nonfatal: true
     that: "item.value.pct_used < {{ max_disk }}"
     msg: "filesystem usage is > {{ max_disk }} on {{ item.key }}"
   with_dict: "{{ filesystems.filesystems }}"

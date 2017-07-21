@@ -19,6 +19,7 @@
       register: token_table_size
 
     - assert:
+        nonfatal: true
         that: token_table_size.results[0][0] < 100000
         msg: "keystone token table is large; are you expiring tokens?"
       ignore_errors: "{{ continue_on_error|default(false)|bool }}"

@@ -1,5 +1,9 @@
+- hosts: localhost
+  roles:
+    - module/assert
+
 - hosts: all
-  strategy: assertive
+  name: basic system tests
   tags:
     - check-basic
   roles:
@@ -11,14 +15,14 @@
       tags: check-diskspace
 
 - hosts: all
-  strategy: assertive
+  name: pacemaker tests
   tags:
     - check-pacemaker
   roles:
     - role: check/pacemaker/fencing
 
 - hosts: all
-  strategy: assertive
+  name: openstack tests
   tags:
     - check-openstack
   roles:

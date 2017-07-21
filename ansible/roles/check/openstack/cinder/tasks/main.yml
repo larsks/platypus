@@ -20,6 +20,7 @@
       with_items: "{{ cinder_backends.config.enabled_backends }}"
 
     - assert:
+        nonfatal: true
         that: not item.config[item.item].volume_driver.endswith('LVMVolumeDriver')
         msg: "LVM volume driver is enabled for backend {{ item.item }}"
       when: not item|skipped

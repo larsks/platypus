@@ -13,12 +13,14 @@
 
 - name: check if both ntp services are active
   assert:
+    nonfatal: true
     that: not (chronyd_active.rc != 0 and ntpd_active.rc != 0)
     msg: both chronyd and ntpd appear to be active.
   ignore_errors: "{{ continue_on_error|default(false)|bool }}"
 
 - name: check if neither service is active
   assert:
+    nonfatal: true
     that: (chronyd_active.rc == 0 or ntpd_active.rc == 0)
     msg: "no ntp service is running"
   ignore_errors: "{{ continue_on_error|default(false)|bool }}"
@@ -41,15 +43,8 @@
 
 - name: check if clock is synchronized
   assert:
-    that: >
-      clock_skew.clock.synchronized
+    nonfatal: true
+    that:
+      - clock_skew.clock.synchronized
+      - clock_skew.clock.offset < clock_skew_limit|default(1)
     msg: clock is not synchronized
-  ignore_errors: "{{ continue_on_error|default(false)|bool }}"
-
-- name: check ntp offset
-  assert:
-    that: >
-      clock_skew.clock.offset < clock_skew_limit|default(1)
-    msg: clock offset is too large
-  when: clock_skew.clock.synchronized
-  ignore_errors: "{{ continue_on_error|default(false)|bool }}"

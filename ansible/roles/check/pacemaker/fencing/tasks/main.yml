@@ -9,6 +9,7 @@
   block:
     - name: check that fencing is enabled
       assert:
+        nonfatal: true
         that: >
           cluster_properties.properties['stonith-enabled']|default('false')
           is not 'false'
@@ -21,6 +22,7 @@
 
     - name: check that fence devices exist
       assert:
+        nonfatal: true
         that: "item != 'No stonith devices configured'"
         msg: "no fencing devices have been configured"
       with_items: "{{ fence_devices.stdout_lines }}"
@@ -28,6 +30,7 @@
 
     - name: check that fence devices are active
       assert:
+        nonfatal: true
         that: "'Stopped' not in item"
         msg: "fence device {{ item.split()[0] }} is stopped"
       with_items: "{{ fence_devices.stdout_lines }}"
