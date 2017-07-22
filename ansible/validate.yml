@@ -5,14 +5,16 @@
 - hosts: all
   name: basic system tests
   tags:
-    - check-basic
+    - check-system
   roles:
-    - role: check/updates
-      tags: check-updates
-    - role: check/clock
-      tags: check-clock
-    - role: check/diskspace
-      tags: check-diskspace
+    - role: check/system/rhel
+      tags: check-system-rhel
+    - role: check/system/updates
+      tags: check-system-updates
+    - role: check/system/clock
+      tags: check-system-clock
+    - role: check/system/diskspace
+      tags: check-system-diskspace
 
 - hosts: all
   name: pacemaker tests

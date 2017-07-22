@@ -1,0 +1,13 @@
+- name: read /etc/redhat-release
+  command: cat /etc/redhat-release
+  register: redhat_release
+  ignore_errors: true
+
+- name: check that we are running on rhel
+  assert:
+    nonfatal: true
+    that:
+      - redhat_release|success
+      - >
+        "Red Hat Enterprise Linux" in redhat_release.stdout
+    msg: these tests have been designed to run on Red Hat Enterprise Linux
