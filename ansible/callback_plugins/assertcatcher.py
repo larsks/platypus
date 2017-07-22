@@ -38,11 +38,26 @@ class CallbackModule(CallbackModule_default):
         self.timing['test_started_at'] = str(datetime.datetime.utcnow().isoformat())
 
     def process_assert_result(self, result, skipped=False):
+        '''process the results from a single assert: action.  a single 
+        assert: may contain multiple tests.'''
+
         # we get loop results one at a time through
         # v2_playbook_item_on_*, so we can ignore tasks
         # with loop results.
         if 'results' in result._result:
             return
+
+        tests = []
+        testentry = {
+            'assertions': tests,
+            'testtime': datetime.datetime.utcnow().isoformat(),
+        }
+
+        if result._task.name:
+            testentry['name'] = result._task.name
+
+        if 'item' in result._result:
+            testentry['item'] = result._result['item']
 
         for assertion in result._result.get('assertions', [{}]):
             failed = not assertion.get('evaluated_to', True)
@@ -62,34 +77,40 @@ class CallbackModule(CallbackModule_default):
                 testcolor = C.COLOR_OK
                 self.stats['assertions_passed'] += 1
 
-            testdata = {
+            thistest = {
                 'testresult': testresult,
                 'test': assertion.get('assertion'),
-                'testtime': datetime.datetime.utcnow().isoformat(),
             }
 
-            if result._task.name:
-                testdata['name'] = result._task.name
-
-            if 'item' in result._result:
-                testdata['item'] = result._result['item']
-
-            if 'msg' in result._result:
-                testdata['msg'] = result._result.get('msg')
-
-            self.suite['tests'].append(testdata)
-
-            msg=''
-            if failed and 'msg' in result._result:
-                msg = ': %s' % result._result['msg']
+            tests.append(thistest)
 
             prefix = stringc('%s: [%s]' % (
                 testresult, result._host.get_name()), testcolor)
 
-            self._display.display('%s  ASSERT(%s)%s' % (
+            self._display.display('%s  ASSERT(%s)' % (
                 prefix,
-                assertion.get('assertion', '(skipped)'),
-                msg))
+                assertion.get('assertion', '(skipped)')))
+
+        failed = any(test['testresult'] == 'failed'
+                     for test in tests)
+
+        skipped = all(test['testresult'] == 'skipped'
+                      for test in tests)
+
+        if 'msg' in result._result:
+            testentry['msg'] = result._result['msg']
+            if failed:
+                msg ='failed: %s' % (result._result['msg'])
+                self._display.display(stringc(msg, C.COLOR_ERROR))
+
+        if failed:
+            testentry['testresult'] = 'failed'
+        elif skipped:
+            testentry['testresult'] = 'skipped'
+        else:
+            testentry['testresult'] = 'passed'
+
+        self.suite['tests'].append(testentry)
 
     def v2_runner_item_on_ok(self, result):
         if result._task.action == 'assert':
